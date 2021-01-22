@@ -48,7 +48,7 @@
           let ul = this.el.querySelector(`ul`);
           let footer = this.el.querySelector(`.footer`);
           let html = ``;
-          this.dataArr.forEach((value) => {
+          this.dataArr.forEach(value => {
             let htmlTxt = `<li><input type="checkbox" class="check" id="${value.id}" />${value.info}
             <a href="javascript:;" class="del" id="${value.id}" hidden>×</a></li>`;
             if (this.flag == 0) {
@@ -78,7 +78,7 @@
         }
         add() {
           let txt = this.el.querySelector(`input`);
-          txt.addEventListener("keydown", (e) => {
+          txt.addEventListener("keydown", e => {
             if (e.keyCode === 13) {
               let obj = {};
               obj.info = txt.value;
@@ -99,7 +99,7 @@
           for (let i = 0; i < dels.length; i++) {
             dels[i].addEventListener("click", function () {
               that.dataArr.splice(
-                that.dataArr.findIndex((value) => value.id == this.id),
+                that.dataArr.findIndex(value => value.id == this.id),
                 1
               );
               that.localSto();
@@ -122,12 +122,14 @@
           let checks = this.el.querySelectorAll(`.check`);
           let that = this;
           for (let i = 0; i < checks.length; i++) {
-            checks[i].checked = that.dataArr.some((value) => value.id == checks[i].id && value.completed);
+            checks[i].checked = that.dataArr.some(value => value.id == checks[i].id && value.completed);
             if (checks[i].checked) {
               checks[i].parentNode.classList.add(`checked`);
             }
             checks[i].addEventListener("click", function () {
-              that.dataArr[that.dataArr.findIndex((value) => value.id == this.id)].completed = this.checked ? 1 : 0;
+              that.dataArr[that.dataArr.findIndex(value => value.id == this.id)].completed = this.checked
+                ? 1
+                : 0;
               if (this.checked) {
                 this.parentNode.classList.add(`checked`);
               } else {
@@ -142,7 +144,7 @@
           let footer = this.el.querySelector(`.footer`);
           let leftCount = 0;
           let cptCount = 0;
-          this.dataArr.forEach((value) => {
+          this.dataArr.forEach(value => {
             if (!value.completed) {
               leftCount++;
             } else {
@@ -169,7 +171,7 @@
         clearCpt() {
           let footer = this.el.querySelector(`.footer`);
           footer.children[2].addEventListener("click", () => {
-            this.dataArr = this.dataArr.filter((value) => {
+            this.dataArr = this.dataArr.filter(value => {
               return !value.completed;
             });
             this.localSto();
@@ -182,6 +184,7 @@
       }
       let todos = new Todos(`.container`, `todos`, `What needs to be done?`);
       // let todos1 = new Todos(`.container1`, `todos2`, `What needs to be done?`);
+      //测试远程仓库1
     </script>
   </body>
 </html>
