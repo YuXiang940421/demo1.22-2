@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/index.css" />
+  </head>
+  <body>
+    <div class="container"></div>
+    <div class="container1"></div>
+    <script>
+      class Todos {
+        constructor(el, h1Txt, inputTxt) {
+          this.dataArr = JSON.parse(localStorage.getItem("localArray"))
+            ? JSON.parse(localStorage.getItem("localArray"))
+            : [];
+          console.log(this.dataArr);
+          this.tag = this.dataArr.length == 0 ? 0 : JSON.parse(localStorage.getItem("localTag"));
+          this.flag = 0;
+          this.el = document.querySelector(el);
+          this.h1Txt = h1Txt;
+          this.inputTxt = inputTxt;
+          this.setPage();
+        }
+        setPage() {
+          this.el.innerHTML = `
+          <h1>${this.h1Txt}</h1>
+          <div class="box">
+           <input type="text" placeholder='${this.inputTxt}' class="txt"/>
+           <ul></ul>
+           <div class="footer" hidden>
+            <span></span>
+            <div class="btn">
+             <button>All</button>
+             <button>Active</button>
+             <button>Completed</button>
+            </div>
+          <a href="javascript:;" hidden>Clear completed</a>
+        </div>
+      </div>`;
+          this.resetPage();
+          this.add();
+          let btns = this.el.querySelectorAll(`button`);
+          btns[0].classList.add(`active`);
+        }
+        resetPage() {
+          let ul = this.el.querySelector(`ul`);
+          let footer = this.el.querySelector(`.footer`);
+          let html = ``;
+          this.dataArr.forEach((value) => {
+            let htmlTxt = `<li><input type="checkbox" class="check" id="${value.id}" />${value.info}
+            <a href="javascript:;" class="del" id="${value.id}" hidden>×</a></li>`;
+            if (this.flag == 0) {
+              html += htmlTxt;
+            } else if (this.flag == 1) {
+              if (!value.completed) {
+                html += htmlTxt;
+              }
+            } else if (this.flag == 2) {
+              if (value.completed) {
+                html += htmlTxt;
+              }
+            }
+          });
+          ul.innerHTML = html;
+          this.del();
+          this.showDel();
+          this.check();
+          this.getCount();
+          this.clearCpt();
+          this.changeBtn();
+          if (this.dataArr.length == 0) {
+            ul.hidden = footer.hidden = true;
+          } else {
+            ul.hidden = footer.hidden = false;
+          }
+        }
+        add() {
+          let txt = this.el.querySelector(`input`);
+          txt.addEventListener("keydown", (e) => {
+            if (e.keyCode === 13) {
+              let obj = {};
+              obj.info = txt.value;
+              obj.id = this.tag;
+              obj.completed = 0;
+              this.tag++;
+              this.dataArr.push(obj);
+              this.localSto();
+              this.resetPage();
+              txt.value = ``;
+              localStorage.setItem("localTag", JSON.stringify(this.tag));
+            }
+          });
+        }
+        del() {
+          let dels = this.el.querySelectorAll(`.del`);
+          let that = this;
+          for (let i = 0; i < dels.length; i++) {
+            dels[i].addEventListener("click", function () {
+              that.dataArr.splice(
+                that.dataArr.findIndex((value) => value.id == this.id),
+                1
+              );
+              that.localSto();
+              that.resetPage();
+            });
+          }
+        }
+        showDel() {
+          let lis = this.el.querySelectorAll(`ul li`);
+          for (let i = 0; i < lis.length; i++) {
+            lis[i].addEventListener("mouseenter", function () {
+              this.children[1].hidden = false;
+            });
+            lis[i].addEventListener("mouseleave", function () {
+              this.children[1].hidden = true;
+            });
+          }
+        }
+        check() {
+          let checks = this.el.querySelectorAll(`.check`);
+          let that = this;
+          for (let i = 0; i < checks.length; i++) {
+            checks[i].checked = that.dataArr.some((value) => value.id == checks[i].id && value.completed);
+            if (checks[i].checked) {
+              checks[i].parentNode.classList.add(`checked`);
+            }
+            checks[i].addEventListener("click", function () {
+              that.dataArr[that.dataArr.findIndex((value) => value.id == this.id)].completed = this.checked ? 1 : 0;
+              if (this.checked) {
+                this.parentNode.classList.add(`checked`);
+              } else {
+                this.parentNode.classList.remove(`checked`);
+              }
+              that.getCount();
+              that.localSto();
+            });
+          }
+        }
+        getCount() {
+          let footer = this.el.querySelector(`.footer`);
+          let leftCount = 0;
+          let cptCount = 0;
+          this.dataArr.forEach((value) => {
+            if (!value.completed) {
+              leftCount++;
+            } else {
+              cptCount++;
+            }
+          });
+          footer.children[0].innerHTML = `${leftCount} item left`;
+          footer.children[2].hidden = cptCount == 0 ? true : false;
+        }
+        changeBtn() {
+          let btns = this.el.querySelectorAll(`button`);
+          let that = this;
+          for (let i = 0; i < btns.length; i++) {
+            btns[i].addEventListener("click", function () {
+              for (let i = 0; i < btns.length; i++) {
+                btns[i].classList.remove(`active`);
+              }
+              this.classList.add(`active`);
+              that.flag = i;
+              that.resetPage();
+            });
+          }
+        }
+        clearCpt() {
+          let footer = this.el.querySelector(`.footer`);
+          footer.children[2].addEventListener("click", () => {
+            this.dataArr = this.dataArr.filter((value) => {
+              return !value.completed;
+            });
+            this.localSto();
+            this.resetPage();
+          });
+        }
+        localSto() {
+          localStorage.setItem("localArray", JSON.stringify(this.dataArr));
+        }
+      }
+      let todos = new Todos(`.container`, `todos`, `What needs to be done?`);
+      // let todos1 = new Todos(`.container1`, `todos2`, `What needs to be done?`);
+    </script>
+  </body>
+</html>
